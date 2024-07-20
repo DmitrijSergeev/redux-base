@@ -1,9 +1,19 @@
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
-import {store} from "./store/store.ts";
+import {CounterID, DecrementAction, IncrementAction, store} from "./store/store.ts";
+import {useEffect, useReducer} from "react";
 
 function App() {
+
+    // const [, forceUpdate] = useReducer((x)=> x + 1, 0)
+
+    // useEffect(() => {
+    //     const unsubscribe = store.subscribe(()=>{
+    //         forceUpdate()
+    //     })
+    //     return unsubscribe;
+    // }, []);
 
     return (
         <>
@@ -17,13 +27,15 @@ function App() {
             </div>
             <h1>Vite + React</h1>
             <div className="card">
-                counter{store.getState().counter}
-                <button onClick={() => store.dispatch({type: 'increment'})}>
-                    increment
-                </button>
-                <button onClick={() => store.dispatch({type: 'decrement'})}>
-                    decrement
-                </button>
+                {/*counter{store.getState().counters[counterID]?.counter}*/}
+                {/*<button onClick={() => store.dispatch({type: 'increment'})}>*/}
+                {/*    increment*/}
+                {/*</button>*/}
+                {/*<button onClick={() => store.dispatch({type: 'decrement'})}>*/}
+                {/*    decrement*/}
+                {/*</button>*/}
+                <Counter counterID={'first'}/>
+                <Counter counterID={'second'}/>
                 <p>
                     Edit <code>src/App.tsx</code> and save to test HMR
                 </p>
@@ -33,6 +45,24 @@ function App() {
             </p>
         </>
     )
+}
+
+export function Counter({counterID}: { counterID: CounterID }) {
+    const [, forceUpdate] = useReducer((x) => x + 1, 0)
+    useEffect(() => {
+        return store.subscribe(() => {
+            forceUpdate()
+        });
+    }, []);
+    return <>
+        counter{store.getState().counters[counterID]?.counter}
+        <button onClick={() => store.dispatch({type: 'increment', payload: {counterID}} satisfies IncrementAction)}>
+            increment
+        </button>
+        <button onClick={() => store.dispatch({type: 'decrement', payload: {counterID}} satisfies DecrementAction)}>
+            decrement
+        </button>
+    </>
 }
 
 export default App

@@ -1,33 +1,64 @@
 import {configureStore} from '@reduxjs/toolkit'
 
+type CounterState = {
+    counter: number
+}
+export type CounterID = string;
+
 type State = {
-    counter: number,
+    counters: Record<CounterID, CounterState | undefined>,
 }
 
 export type IncrementAction = {
     type: 'increment'
+    payload: {
+        counterID: CounterID
+    }
 }
 export type DecrementAction = {
     type: 'decrement'
+    payload: {
+        counterID: CounterID
+    }
 }
 type Action = IncrementAction | DecrementAction
 
+const initialCounterState: CounterState = {counter: 0}
+
 const initialState: State = {
-    counter: 0
+    counters: {}
 }
 
 const reducer = (state = initialState, action: Action): State => {
     switch (action.type) {
-        case "increment":
+        case "increment":{
+            const {counterID} = action.payload;
+            const currentCounter = state.counters[counterID] ?? initialCounterState
             return {
                 ...state,
-                counter: state.counter + 1
+                counters: {
+                    ...state.counters,
+                    [counterID]: {
+                        ...currentCounter,
+                        counter: currentCounter.counter + 1
+                    }
+                },
             };
-        case "decrement":
+        }
+        case "decrement":{
+            const {counterID} = action.payload;
+            const currentCounter = state.counters[counterID] ?? initialCounterState
             return {
                 ...state,
-                counter: state.counter - 1
+                counters: {
+                    ...state.counters,
+                    [counterID]: {
+                        ...currentCounter,
+                        counter: currentCounter.counter - 1
+                    }
+                },
             }
+        }
         default:
             return state;
     }
@@ -37,6 +68,6 @@ export const store = configureStore({
     reducer: reducer,
 })
 
-store.dispatch;
-store.getState;
-store.subscribe;
+// store.dispatch;
+// store.getState;
+// store.subscribe;
