@@ -68,6 +68,8 @@ export const store = configureStore({
     reducer: reducer,
 })
 
+export type AppStateType = ReturnType<typeof store.getState>
+
 // store.dispatch;
 // store.getState;
 // store.subscribe;

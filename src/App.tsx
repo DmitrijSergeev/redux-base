@@ -1,19 +1,10 @@
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
-import {CounterID, DecrementAction, IncrementAction, store} from "./store/store.ts";
-import {useEffect, useReducer} from "react";
+import {AppStateType, CounterID, DecrementAction, IncrementAction, store} from "./store/store.ts";
+import {useEffect, useReducer, useRef} from "react";
 
 function App() {
-
-    // const [, forceUpdate] = useReducer((x)=> x + 1, 0)
-
-    // useEffect(() => {
-    //     const unsubscribe = store.subscribe(()=>{
-    //         forceUpdate()
-    //     })
-    //     return unsubscribe;
-    // }, []);
 
     return (
         <>
@@ -27,13 +18,6 @@ function App() {
             </div>
             <h1>Vite + React</h1>
             <div className="card">
-                {/*counter{store.getState().counters[counterID]?.counter}*/}
-                {/*<button onClick={() => store.dispatch({type: 'increment'})}>*/}
-                {/*    increment*/}
-                {/*</button>*/}
-                {/*<button onClick={() => store.dispatch({type: 'decrement'})}>*/}
-                {/*    decrement*/}
-                {/*</button>*/}
                 <Counter counterID={'first'}/>
                 <Counter counterID={'second'}/>
                 <p>
@@ -47,15 +31,30 @@ function App() {
     )
 }
 
+const selectCounter = (state: AppStateType, counterId: CounterID) => state.counters[counterId]
+
 export function Counter({counterID}: { counterID: CounterID }) {
     const [, forceUpdate] = useReducer((x) => x + 1, 0)
+    console.log('render Counter', counterID)
+
+    const lastStateRef = useRef<ReturnType<typeof selectCounter>>()
+
     useEffect(() => {
         return store.subscribe(() => {
-            forceUpdate()
+            const currentState = selectCounter(store.getState(), counterID)
+            const lastState = lastStateRef.current
+
+            if (currentState !== lastState) {
+                forceUpdate()
+            }
+            lastStateRef.current = currentState
         });
-    }, []);
+    }, [counterID]);
+
+    const counterState = selectCounter(store.getState(), counterID)
+
     return <>
-        counter{store.getState().counters[counterID]?.counter}
+        counter{counterState?.counter}
         <button onClick={() => store.dispatch({type: 'increment', payload: {counterID}} satisfies IncrementAction)}>
             increment
         </button>
